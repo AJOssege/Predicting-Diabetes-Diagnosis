@@ -11,9 +11,10 @@ data(diabetes)
 View(diabetes)
 
 # plots of categoricals
-plot(diabetes$location)
-plot(diabetes$gender)
-plot(diabetes$frame)
+plot(diabetes$location, main="Location Samples", ylab="Count", col="orange")
+plot(diabetes$gender, main="Gender", ylab="Count", col="green")
+plot(diabetes$frame,  main= "Body Frame", ylab="Count", col="blue" )
+
 
 #descriptive Statistics
 describe(diabetes)
