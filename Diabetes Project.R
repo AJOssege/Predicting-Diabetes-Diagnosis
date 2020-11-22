@@ -57,4 +57,12 @@ newdata <-diabetes_data[myvars]
 # 12 cases are missing "frame". Can this be predicted or filled in with mean? 
 # frame and glyhb do not have NA in same rows
 
+# new df/.csv file with BMI stats included; sans NA values and variables: id, ratio, height, weight,frame, bp.2s, & bp.2d
+diabetes_data_sub = subset(diabetes_data, select = -c(id, ratio, height, weight,
+                                                      frame, bp.2s, bp.2d))
 
+sum(is.na(diabetes_data_sub))
+sum(complete.cases(diabetes_data_sub))
+is.na(diabetes_data_sub)
+diabetes_data_no_na<-na.omit(diabetes_data_sub)
+write.csv(diabetes_data_no_na, "diabetes_data_no_na.csv")
