@@ -1,6 +1,7 @@
 library(faraway)
 library(psych)
 library(ggplot2)
+library(pheatmap)
 
 # read in diabetes data
 # do exploratory
