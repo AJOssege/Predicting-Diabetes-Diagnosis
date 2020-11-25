@@ -5,6 +5,15 @@ diabetes_data$hasDiabetes<-ifelse(diabetes_data$glyhb>=7.0,1,0)
 diabetes_data$bmi <- 703*diabetes_data$weight/(diabetes_data$height)^2
 diabetes_data$bmiCat <- ifelse(diabetes_data$bmi <18.5, "Underweight",ifelse(diabetes_data$bmi <25, "Normal",ifelse(diabetes_data$bmi <30, "Overweight","Obese")))
 
+#Lauren subset code
+diabetes_data_sub = subset(diabetes_data, select = -c(id, ratio, height, weight, frame, bp.2s, bp.2d))
+sum(is.na(diabetes_data_sub))
+sum(complete.cases(diabetes_data_sub))
+is.na(diabetes_data_sub)
+diabetes_data_no_na<-na.omit(diabetes_data_sub)
+diabetes_data <- diabetes_data_no_na
+###############
+
 
 CDC_by_age <- read.table("CDC_Age_Percents.csv", header = T, sep=",")
 CDC_by_gender <- read.table("CDC_Gender_Percents.csv", header = T, sep=",")
