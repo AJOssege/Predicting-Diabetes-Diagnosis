@@ -3,6 +3,7 @@ library(vtree)
 library(Hmisc)
 library(psych) 
 library(dplyr)
+library(statsr)
 
 # David hasDiabetes, bmi, & bmiCat variable creation code
 diabetes_data<- diabetes 
@@ -16,6 +17,20 @@ diabetes_data$bmiCat <- ifelse(diabetes_data$bmi <18.5, "Underweight",
 diabetes_data$ageCat <- ifelse(diabetes_data$age <45, "Younger",
                                ifelse(diabetes_data$bmi <65, "Mature", "Senior"))
 
+# is there an observable/calculable impact on glyhb due to differences in the genders?
+
+inference(y = diabetes_data$glyhb, x = diabetes_data$gender, data = diabetes_data, statistic = "mean", type = "ht", null = 0, alternative = "twosided", method = "theoretical")
+
+# result: no need to separate data by gender
+# Response variable: numerical
+# Explanatory variable: categorical (2 levels) 
+# n_male = 162, y_bar_male = 5.7241, s_male = 2.3878
+# n_female = 228, y_bar_female = 5.4943, s_female = 2.1337
+# H0: mu_male =  mu_female
+# HA: mu_male != mu_female
+# t = 0.9781, df = 161
+# p_value = 0.3295
+
 # new df/.csv file with BMI stats included; sans NA values and variables: id, ratio, height, weight,frame, bp.2s, & bp.2d
 diabetes_data_sub = subset(diabetes_data, select = -c(id, ratio, height, weight,
                                                       frame, bp.2s, bp.2d))
@@ -25,6 +40,8 @@ sum(complete.cases(diabetes_data_sub))
 is.na(diabetes_data_sub)
 diabetes_data_no_na<-na.omit(diabetes_data_sub)
 write.csv(diabetes_data_no_na, "diabetes_data_no_na.csv")
+
+diabetes_data_no_na_2 <- read.table("diabetes_data_no_na_2.csv", header=TRUE ,sep=",")
 
 # create variable trees to explore spread/split of hasDiabetes across ageCat, bmiCat, location, and gender (as a precursor to interaction effect analysis)                 
 vtree(diabetes_data_no_na_2,"hasDiabetes ageCat",horiz=FALSE,height=250,width=850,showlevels=FALSE,title="hasDiabetes & ageCat", summary="glyhb \n\nglyhb\nmean=%mean%\nSD=%SD% %leafonly%")
@@ -44,23 +61,8 @@ inference(y = diabetes_risk_bmi$glyhb, data = diabetes_data_no_na_2, statistic =
 
 
 
-
-
-
 ############################################################
 ############################################################
-
-set.seed(100)
-data<-diabetes_data_no_na
-sample<-sample.int(nrow(data), floor(.50*nrow(data)), replace = F)
-train<-data[sample, ]
-test<-data[-sample, ]
-
-
-############################################################
-############################################################
-
-data <- read.table("diabetes_data_no_na_2.csv", header=TRUE ,sep=",")
 
 diabetes_data = subset(data, select = -c(X))
 attach(diabetes_data)
@@ -152,3 +154,31 @@ boxplot(diabetes_data$bmi~diabetes_data$hasDiabetes)
 full<-glm(hasDiabetes ~ bmiCat+age+chol+stab.glu+hdl+bp.1d+bp.1s, family = "binomial")
 summary(full)
 
+##########################################################
+# Trying Logistic models
+##########################################################
+
+set.seed(100)
+data<-diabetes_data_no_na
+sample<-sample.int(nrow(data), floor(.50*nrow(data)), replace = F)
+train<-data[sample, ]
+test<-data[-sample, ]
+
+
+log_diabetes <- glm(hasDiabetes ~age +chol + bmi + hdl, family = "binomial", data=train)
+summary(log_diabetes)
+preds<-predict(log_diabetes,newdata=test, type="response")
+
+rates<-prediction(preds, test$hasDiabetes)
+roc_result<-performance(rates,measure="tpr", x.measure="fpr")
+
+##ROC curve 
+plot(roc_result, main="ROC Curve for Diabetes")
+lines(x = c(0,1), y = c(0,1), col="red")
+
+##AUC
+auc<-performance(rates, measure = "auc")
+auc@y.values[[1]]
+
+
+table(test$hasDiabetes, preds>0.1)
