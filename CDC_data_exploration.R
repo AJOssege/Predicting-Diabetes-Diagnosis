@@ -178,7 +178,7 @@ legend<- legend(x="topleft",legend=c("Data Diabetes","CDC Diagnosed","CDC Total"
 
 par(mfrow=c(1,2))
 #Diabetes Data African Americans
-race_frame <- cbind(c(study_african_american_percent),c(study_african_american_Prepercent),CDC_by_gender[2,])
+race_frame <- cbind(c(study_african_american_percent),c(study_african_american_Prepercent),CDC_by_race[2,])
 colnames(race_frame)[1]<-"study_data"
 colnames(race_frame)[2]<-"study_dataPre"
 barCenters <- barplot(rbind(race_frame$study_data,race_frame$DiagnosedPercent,race_frame$TotalPercent,race_frame$study_dataPre,race_frame$Prediabetes),
@@ -298,7 +298,7 @@ rates<-prediction(preds, test$hasDiabetes)
 roc_result<-performance(rates,measure="tpr", x.measure="fpr")
 
 ##plot ROC curve and overlay the diagonal line for random guessing
-plot(roc_result, main="ROC Curve for Coronary Heart Disease")
+plot(roc_result, main="ROC Curve for Diabetes Predictive Model")
 lines(x = c(0,1), y = c(0,1), col="red")
 
 ##compute the AUC
@@ -318,7 +318,7 @@ rates<-prediction(preds, test$hasPreDiabetes)
 roc_result<-performance(rates,measure="tpr", x.measure="fpr")
 
 ##plot ROC curve and overlay the diagonal line for random guessing
-plot(roc_result, main="ROC Curve for Coronary Heart Disease")
+plot(roc_result, main="ROC Curve for Prediabetes Predictive Model")
 lines(x = c(0,1), y = c(0,1), col="red")
 
 ##compute the AUC
